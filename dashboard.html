@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Health | Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Dark Mode Toggle -->
+<div class="theme-toggle" onclick="toggleTheme()">
+  <span class="theme-toggle-label">Theme</span>
+  <div class="toggle-switch">
+    <span class="toggle-icon sun">☀️</span>
+    <span class="toggle-icon moon">🌙</span>
+  </div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <!-- Logo -->
+    <div style="text-align: center; margin-bottom: 40px;">
+      <div style="
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 12px;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+      ">
+        🏥
+      </div>
+      <h2 style="font-size: 20px; margin: 0;">AI Health</h2>
+    </div>
+
+    <button class="nav-btn active" data-tab="records">📋 Records</button>
+    <button class="nav-btn" data-tab="analytics">📊 Analytics</button>
+    <button class="nav-btn" data-tab="reminders">⏰ Reminders</button>
+    <button class="nav-btn" data-tab="calculators">🧮 Calculators</button>
+    <button class="nav-btn" data-tab="ai">🤖 AI Checker</button>
+    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+  </aside>
+
+  <!-- MAIN CONTENT - NO INLINE STYLES -->
+  <main class="content">
+    
+    <!-- ==================== RECORDS TAB ==================== -->
+    <section id="records" class="tab active">
+      <h2>Health Records</h2>
+      <p>Keep track of your medical history</p>
+      
+      <div class="card">
+        <h3>Add New Record</h3>
+        <input id="condition" placeholder="Condition (e.g., Headache, Fever)">
+        <input id="medicine" placeholder="Medicine (e.g., Paracetamol)">
+        <input type="date" id="date">
+        <button class="primary" onclick="saveRecord()">💾 Save Record</button>
+      </div>
+
+      <div id="recordsList" class="card-grid"></div>
+    </section>
+
+    <!-- ==================== ANALYTICS TAB ==================== -->
+    <section id="analytics" class="tab">
+      <h2>Health Analytics</h2>
+      <p>Visual summary of your medical records</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>📊 Condition Distribution</h3>
+          <canvas id="conditionChart"></canvas>
+        </div>
+        <div class="card">
+          <h3>💊 Medicine Frequency</h3>
+          <canvas id="medicineChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== REMINDERS TAB ==================== -->
+    <section id="reminders" class="tab">
+      <h2>Medicine Reminders</h2>
+      <p>Never miss your medication</p>
+
+      <div class="card">
+        <h3>Set New Reminder</h3>
+        <input id="reminderText" placeholder="Medicine name (e.g., Aspirin)">
+        <input id="reminderTime" type="time">
+        <button class="primary" onclick="setReminder()">⏰ Set Reminder</button>
+      </div>
+
+      <div class="card">
+        <h3>📅 Scheduled Reminders</h3>
+        <ul id="remindersUl">
+          <li style="color: var(--text-muted); list-style: none;">No reminders scheduled yet</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== CALCULATORS TAB ==================== -->
+    <section id="calculators" class="tab">
+      <h2>Health Calculators</h2>
+      <p>Calculate your health metrics</p>
+
+      <div class="card-grid">
+        
+        <!-- BMI CALCULATOR -->
+        <div class="card">
+          <h3>📏 BMI Calculator</h3>
+          <p style="font-size: 13px; margin-bottom: 16px;">
+            Body Mass Index
+          </p>
+          <input type="number" id="bmiWeight" placeholder="Weight (kg)" step="0.1">
+          <input type="number" id="bmiHeight" placeholder="Height (cm)" step="0.1">
+          <button class="primary" onclick="calculateBMI()">Calculate</button>
+          <div id="bmiResult"></div>
+        </div>
+
+        <!-- CALORIE CALCULATOR -->
+        <div class="card">
+          <h3>🔥 Calorie Calculator</h3>
+          <p style="font-size: 13px; margin-bottom: 16px;">
+            Daily calorie needs
+          </p>
+          <input type="number" id="calWeight" placeholder="Weight (kg)" step="0.1">
+          <input type="number" id="calHeight" placeholder="Height (cm)" step="0.1">
+          <input type="number" id="calAge" placeholder="Age" min="1" max="120">
+          <select id="calGender">
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <select id="calActivity">
+            <option value="1.2">Sedentary (little/no exercise)</option>
+            <option value="1.375">Light (exercise 1-3 days/week)</option>
+            <option value="1.55">Moderate (exercise 3-5 days/week)</option>
+            <option value="1.725">Active (exercise 6-7 days/week)</option>
+            <option value="1.9">Very Active (intense daily exercise)</option>
+          </select>
+          <button class="primary" onclick="calculateCalories()">Calculate</button>
+          <div id="calorieResult"></div>
+        </div>
+
+        <!-- WATER INTAKE TRACKER -->
+        <div class="card">
+          <h3>💧 Water Intake Tracker</h3>
+          <p style="font-size: 13px; margin-bottom: 16px;">
+            Daily hydration goal
+          </p>
+          <input type="number" id="waterWeight" placeholder="Weight (kg)" step="0.1">
+          <select id="waterActivity">
+            <option value="30">Low Activity</option>
+            <option value="35">Moderate Activity</option>
+            <option value="40">High Activity</option>
+          </select>
+          <button class="primary" onclick="calculateWater()">Calculate</button>
+          <div id="waterResult"></div>
+          
+          <!-- Quick log -->
+          <div id="waterLogger" style="display: none; margin-top: 20px; padding: 16px; background: #f0f9ff; border-radius: 12px;">
+            <p style="font-weight: 600; margin-bottom: 12px;">Log Water Intake</p>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <button onclick="logWater(250)" style="flex: 1; padding: 10px; background: white; border: 2px solid #06b6d4; color: #06b6d4; border-radius: 8px;">250ml</button>
+              <button onclick="logWater(500)" style="flex: 1; padding: 10px; background: white; border: 2px solid #06b6d4; color: #06b6d4; border-radius: 8px;">500ml</button>
+              <button onclick="logWater(1000)" style="flex: 1; padding: 10px; background: white; border: 2px solid #06b6d4; color: #06b6d4; border-radius: 8px;">1L</button>
+            </div>
+            <div style="background: white; padding: 12px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-size: 14px;">Today's Progress</span>
+                <span id="waterProgress" style="font-weight: 600; color: #06b6d4;">0 / 0 ml</span>
+              </div>
+              <div style="height: 12px; background: #e5e9f0; border-radius: 6px; overflow: hidden;">
+                <div id="waterBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #06b6d4, #0891b2); transition: width 0.5s ease;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOOD PRESSURE TRACKER -->
+        <div class="card">
+          <h3>❤️ Blood Pressure Tracker</h3>
+          <p style="font-size: 13px; margin-bottom: 16px;">
+            Monitor your BP readings
+          </p>
+          <input type="number" id="bpSystolic" placeholder="Systolic (top number)" min="70" max="200">
+          <input type="number" id="bpDiastolic" placeholder="Diastolic (bottom number)" min="40" max="130">
+          <input type="number" id="bpPulse" placeholder="Heart Rate (bpm)" min="40" max="200">
+          <button class="primary" onclick="trackBloodPressure()">Track Reading</button>
+          <div id="bpResult"></div>
+          
+          <!-- BP History -->
+          <div id="bpHistory"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== AI CHECKER TAB ==================== -->
+    <section id="ai" class="tab">
+      
+      <!-- SYMPTOM CHECKER -->
+      <div class="card">
+        <h2>🩺 AI Symptom Checker</h2>
+        <p>Describe your symptoms and get AI-powered insights</p>
+        <input 
+          id="symptom" 
+          placeholder="Enter symptoms (e.g., fever, headache, cough)"
+        >
+        <div id="symptomSuggestions"></div>
+        <button class="primary" onclick="checkSymptom()">🔍 Analyze Symptoms</button>
+        <div id="result"></div>
+      </div>
+
+      <!-- CHATBOT -->
+      <div class="card">
+        <h2>💬 AI Health Chat</h2>
+        <p>Ask health questions and get instant AI responses</p>
+        <div id="chatBox"></div>
+        <div class="chat-input-row">
+          <input 
+            id="chatInput" 
+            placeholder="Type or speak your health question..."
+          />
+          <button class="ghost" onclick="startVoice()">🎤 Voice</button>
+          <button class="ghost" onclick="clearChat()">🗑️ Clear</button>
+          <button class="ghost" onclick="stopSpeaking()">🛑 Stop</button>
+          <button class="primary" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+      
+    </section>
+
+  </main>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="toast hidden">
+  <div class="toast-header">💊 Medicine Reminder</div>
+  <div id="toastMessage" class="toast-body"></div>
+  <button class="primary" onclick="closeToast()">OK, Got it!</button>
+</div>
+
+<!-- SCRIPTS -->
+<script src="js/theme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/reminders.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/calculators.js"></script>
+
+</body>
+</html>

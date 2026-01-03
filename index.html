@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Health | Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-body">
+  
+  <!-- Dark Mode Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span class="theme-toggle-label">Theme</span>
+    <div class="toggle-switch">
+      <span class="toggle-icon sun">☀️</span>
+      <span class="toggle-icon moon">🌙</span>
+    </div>
+  </div>
+
+  <!-- Animated background -->
+  <div class="auth-bg"></div>
+
+  <div class="auth-wrapper">
+    <div class="auth-card modern">
+      
+      <!-- Logo -->
+      <div style="text-align: center; margin-bottom: 32px;">
+        <div style="
+          width: 72px;
+          height: 72px;
+          margin: 0 auto 16px;
+          background: linear-gradient(135deg, #2563eb, #06b6d4);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 36px;
+          box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        ">
+          🏥
+        </div>
+      </div>
+
+      <div class="auth-title">
+        <h1>AI Health</h1>
+        <p>Secure access to your health records</p>
+      </div>
+
+      <div class="field">
+        <input type="email" id="email" required />
+        <label>Email address</label>
+      </div>
+
+      <div class="field">
+        <input type="password" id="password" required />
+        <label>Password</label>
+      </div>
+
+      <button id="loginBtn" class="btn-primary">
+        Login
+      </button>
+
+      <button id="registerBtn" class="btn-secondary">
+        Create new account
+      </button>
+
+      <!-- Error message (hidden by default) -->
+      <p id="msg" class="auth-error" style="display: none;"></p>
+      
+    </div>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>
