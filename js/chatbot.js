@@ -4,10 +4,8 @@
   Maintains context across messages
 */
 
-// API Configuration - automatically detects environment
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000'  // Local development
-  : 'https://ai-health-backend-ig16.onrender.com';  // Production - Your Render URL
+// API Configuration - Production URL
+const API_URL = 'https://ai-health-backend-ig16.onrender.com';
 
 console.log('🌐 Using API URL:', API_URL);
 
