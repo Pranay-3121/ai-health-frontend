@@ -135,14 +135,15 @@ window.sendChat = async function () {
   showTyping();
 
   try {
-    const res = await fetch("http://localhost:3000/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        message: msg,
-        history: conversationHistory  // Send conversation history
-      })
-    });
+    const res = await fetch(`${API_URL}/chat`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ 
+    message: msg,
+    history: conversationHistory
+  })
+});
+
 
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -174,7 +175,7 @@ window.sendChat = async function () {
   } catch (err) {
     removeTyping();
     console.error("❌ Chat error:", err);
-    addMessage("❌ Connection error. Please check if the server is running on port 3000.", "AI");
+    addMessage("❌ Unable to connect to the AI server. Please try again in a moment.", "AI");
   }
 };
 
