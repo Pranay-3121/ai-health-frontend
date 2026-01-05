@@ -4,7 +4,7 @@
   Maintains context across messages
 */
 
-// API Configuration - Production URL
+// API Configuration - Force production URL for Vercel deployment
 const API_URL = 'https://ai-health-backend-ig16.onrender.com';
 
 console.log('🌐 Using API URL:', API_URL);
