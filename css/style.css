@@ -130,13 +130,12 @@ body {
 }
 
 .sidebar h2 {
-  text-align: center;
-  margin-bottom: 40px;
-  font-size: 24px;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
+  background-clip: text;              /* standard */
+  -webkit-background-clip: text;      /* Safari/Chrome */
   -webkit-text-fill-color: transparent;
 }
+
 
 .nav-btn {
   padding: 14px 20px;
