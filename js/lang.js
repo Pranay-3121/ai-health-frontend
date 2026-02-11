@@ -1,205 +1,208 @@
 /*
-  LANGUAGE SWITCHER (EN / HI / MR)
+  LANGUAGE SWITCHER (EN / MR / HI)
   -------------------------------
-  - Saves language in localStorage
-  - Updates UI text using data-i18n attributes
-  - Also updates placeholders
+  Updates UI text without breaking CSS
 */
-
-const LANG_KEY = "lang";
 
 const translations = {
   en: {
-    theme: "Theme",
-
-    // Auth page
-    login_title: "AI Health",
-    login_subtitle: "Secure access to your health records",
-    email_label: "Email address",
-    password_label: "Password",
-    login_btn: "Login",
-    register_btn: "Create new account",
+    loginTitle: "AI Health",
+    loginSubtitle: "Secure access to your health records",
+    emailLabel: "Email address",
+    passwordLabel: "Password",
+    loginBtn: "Login",
+    registerBtn: "Create new account",
 
     // Dashboard sidebar
     records: "📋 Records",
     analytics: "📊 Analytics",
     reminders: "⏰ Reminders",
     calculators: "🧮 Calculators",
-    ai_checker: "🤖 AI Checker",
+    aiChecker: "🤖 AI Checker",
     logout: "🚪 Logout",
 
-    // Records tab
-    health_records: "Health Records",
-    keep_track: "Keep track of your medical history",
-    add_record: "Add New Record",
-    condition_ph: "Condition (e.g., Headache, Fever)",
-    medicine_ph: "Medicine (e.g., Paracetamol)",
-    save_record: "💾 Save Record",
+    // Tabs headings
+    healthRecords: "Health Records",
+    healthRecordsSub: "Keep track of your medical history",
 
-    // Reminders tab
-    medicine_reminders: "Medicine Reminders",
-    never_miss: "Never miss your medication",
-    set_new_reminder: "Set New Reminder",
-    reminder_ph: "Medicine name (e.g., Aspirin)",
-    set_reminder: "⏰ Set Reminder",
-    scheduled_reminders: "📅 Scheduled Reminders",
+    analyticsTitle: "Health Analytics",
+    analyticsSub: "Visual summary of your medical records",
 
-    // Calculators tab
-    health_calculators: "Health Calculators",
-    calculate_metrics: "Calculate your health metrics",
+    remindersTitle: "Medicine Reminders",
+    remindersSub: "Never miss your medication",
 
-    // AI tab
-    symptom_checker: "🩺 AI Symptom Checker",
-    symptom_sub: "Describe your symptoms and get AI-powered insights",
-    symptom_ph: "Enter symptoms (e.g., fever, headache, cough)",
-    analyze_symptoms: "🔍 Analyze Symptoms",
+    calculatorsTitle: "Health Calculators",
+    calculatorsSub: "Calculate your health metrics",
 
-    ai_chat: "💬 AI Health Chat",
-    chat_sub: "Ask health questions and get instant AI responses",
-    chat_ph: "Type or speak your health question...",
-    voice: "🎤 Voice",
-    clear: "🗑️ Clear",
-    stop: "🛑 Stop",
-    send: "Send"
+    aiTitle: "🩺 AI Symptom Checker",
+    aiSub: "Describe your symptoms and get AI-powered insights",
+
+    chatTitle: "💬 AI Health Chat",
+    chatSub: "Ask health questions and get instant AI responses"
   },
 
   hi: {
-    theme: "थीम",
-
-    login_title: "AI Health",
-    login_subtitle: "अपने हेल्थ रिकॉर्ड्स में सुरक्षित लॉगिन करें",
-    email_label: "ईमेल",
-    password_label: "पासवर्ड",
-    login_btn: "लॉगिन",
-    register_btn: "नया अकाउंट बनाएं",
+    loginTitle: "AI Health",
+    loginSubtitle: "अपने स्वास्थ्य रिकॉर्ड तक सुरक्षित पहुँच",
+    emailLabel: "ईमेल",
+    passwordLabel: "पासवर्ड",
+    loginBtn: "लॉगिन",
+    registerBtn: "नया अकाउंट बनाएं",
 
     records: "📋 रिकॉर्ड्स",
     analytics: "📊 एनालिटिक्स",
     reminders: "⏰ रिमाइंडर",
     calculators: "🧮 कैलकुलेटर",
-    ai_checker: "🤖 AI चेकर",
+    aiChecker: "🤖 AI चेकर",
     logout: "🚪 लॉगआउट",
 
-    health_records: "हेल्थ रिकॉर्ड्स",
-    keep_track: "अपनी मेडिकल हिस्ट्री ट्रैक करें",
-    add_record: "नया रिकॉर्ड जोड़ें",
-    condition_ph: "बीमारी (जैसे: सिर दर्द, बुखार)",
-    medicine_ph: "दवा (जैसे: पैरासिटामोल)",
-    save_record: "💾 रिकॉर्ड सेव करें",
+    healthRecords: "स्वास्थ्य रिकॉर्ड्स",
+    healthRecordsSub: "अपने मेडिकल इतिहास को ट्रैक करें",
 
-    medicine_reminders: "दवा रिमाइंडर",
-    never_miss: "दवा लेना कभी न भूलें",
-    set_new_reminder: "नया रिमाइंडर सेट करें",
-    reminder_ph: "दवा का नाम (जैसे: एस्पिरिन)",
-    set_reminder: "⏰ रिमाइंडर सेट करें",
-    scheduled_reminders: "📅 रिमाइंडर लिस्ट",
+    analyticsTitle: "स्वास्थ्य एनालिटिक्स",
+    analyticsSub: "आपके रिकॉर्ड्स का विज़ुअल सारांश",
 
-    health_calculators: "हेल्थ कैलकुलेटर",
-    calculate_metrics: "अपने हेल्थ डेटा की गणना करें",
+    remindersTitle: "दवा रिमाइंडर",
+    remindersSub: "अपनी दवा कभी मिस न करें",
 
-    symptom_checker: "🩺 AI लक्षण चेकर",
-    symptom_sub: "लक्षण बताएं और AI से सुझाव पाएं",
-    symptom_ph: "लक्षण लिखें (जैसे: बुखार, सिरदर्द, खांसी)",
-    analyze_symptoms: "🔍 लक्षण जांचें",
+    calculatorsTitle: "स्वास्थ्य कैलकुलेटर",
+    calculatorsSub: "अपने हेल्थ मेट्रिक्स कैलकुलेट करें",
 
-    ai_chat: "💬 AI हेल्थ चैट",
-    chat_sub: "हेल्थ सवाल पूछें और AI से जवाब पाएं",
-    chat_ph: "अपना हेल्थ सवाल लिखें या बोलें...",
-    voice: "🎤 आवाज",
-    clear: "🗑️ साफ करें",
-    stop: "🛑 रोकें",
-    send: "भेजें"
+    aiTitle: "🩺 AI लक्षण चेकर",
+    aiSub: "अपने लक्षण बताइए और AI से जानकारी पाइए",
+
+    chatTitle: "💬 AI हेल्थ चैट",
+    chatSub: "स्वास्थ्य सवाल पूछिए और तुरंत जवाब पाइए"
   },
 
   mr: {
-    theme: "थीम",
-
-    login_title: "AI Health",
-    login_subtitle: "तुमचे हेल्थ रेकॉर्ड सुरक्षितपणे वापरा",
-    email_label: "ईमेल",
-    password_label: "पासवर्ड",
-    login_btn: "लॉगिन",
-    register_btn: "नवीन अकाउंट तयार करा",
+    loginTitle: "AI Health",
+    loginSubtitle: "तुमच्या हेल्थ रेकॉर्डसाठी सुरक्षित प्रवेश",
+    emailLabel: "ईमेल",
+    passwordLabel: "पासवर्ड",
+    loginBtn: "लॉगिन",
+    registerBtn: "नवीन खाते तयार करा",
 
     records: "📋 रेकॉर्ड्स",
     analytics: "📊 विश्लेषण",
     reminders: "⏰ रिमाइंडर",
     calculators: "🧮 कॅल्क्युलेटर",
-    ai_checker: "🤖 AI चेकर",
+    aiChecker: "🤖 AI चेकर",
     logout: "🚪 लॉगआउट",
 
-    health_records: "हेल्थ रेकॉर्ड्स",
-    keep_track: "तुमची मेडिकल हिस्ट्री जतन करा",
-    add_record: "नवीन रेकॉर्ड जोडा",
-    condition_ph: "आजारीपणा (उदा: डोकेदुखी, ताप)",
-    medicine_ph: "औषध (उदा: पॅरासिटामोल)",
-    save_record: "💾 रेकॉर्ड सेव करा",
+    healthRecords: "हेल्थ रेकॉर्ड्स",
+    healthRecordsSub: "तुमचा मेडिकल इतिहास सेव्ह करा",
 
-    medicine_reminders: "औषध रिमाइंडर",
-    never_miss: "औषध वेळेवर घ्या",
-    set_new_reminder: "नवीन रिमाइंडर सेट करा",
-    reminder_ph: "औषधाचे नाव (उदा: Aspirin)",
-    set_reminder: "⏰ रिमाइंडर सेट करा",
-    scheduled_reminders: "📅 रिमाइंडर लिस्ट",
+    analyticsTitle: "हेल्थ विश्लेषण",
+    analyticsSub: "तुमच्या रेकॉर्ड्सचा व्हिज्युअल सारांश",
 
-    health_calculators: "हेल्थ कॅल्क्युलेटर",
-    calculate_metrics: "तुमचे हेल्थ मोजा",
+    remindersTitle: "औषध रिमाइंडर",
+    remindersSub: "औषध घेणे विसरू नका",
 
-    symptom_checker: "🩺 AI लक्षण तपासणी",
-    symptom_sub: "लक्षणे सांगा आणि AI कडून माहिती मिळवा",
-    symptom_ph: "लक्षणे लिहा (उदा: ताप, डोकेदुखी, खोकला)",
-    analyze_symptoms: "🔍 लक्षण तपासा",
+    calculatorsTitle: "हेल्थ कॅल्क्युलेटर",
+    calculatorsSub: "तुमचे हेल्थ मेट्रिक्स काढा",
 
-    ai_chat: "💬 AI हेल्थ चॅट",
-    chat_sub: "हेल्थ प्रश्न विचारा आणि AI उत्तर मिळवा",
-    chat_ph: "तुमचा हेल्थ प्रश्न लिहा किंवा बोला...",
-    voice: "🎤 आवाज",
-    clear: "🗑️ क्लिअर",
-    stop: "🛑 थांबवा",
-    send: "पाठवा"
+    aiTitle: "🩺 AI लक्षण तपासणी",
+    aiSub: "लक्षणे लिहा आणि AI कडून माहिती घ्या",
+
+    chatTitle: "💬 AI हेल्थ चॅट",
+    chatSub: "हेल्थ प्रश्न विचारा आणि लगेच उत्तर मिळवा"
   }
 };
 
-function getLang() {
-  return localStorage.getItem(LANG_KEY) || "en";
+// Save language
+function setLanguage(lang) {
+  localStorage.setItem("lang", lang);
+  applyLanguage(lang);
 }
 
-function setLang(lang) {
-  localStorage.setItem(LANG_KEY, lang);
+function getLanguage() {
+  return localStorage.getItem("lang") || "en";
 }
 
 function applyLanguage(lang) {
-  const dict = translations[lang] || translations.en;
+  const t = translations[lang] || translations.en;
 
-  // update text nodes
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    const key = el.getAttribute("data-i18n");
-    if (dict[key]) el.textContent = dict[key];
-  });
+  // LOGIN PAGE
+  const loginH1 = document.querySelector(".auth-title h1");
+  const loginP = document.querySelector(".auth-title p");
+  const emailLabel = document.querySelector('label[for="email"]') || document.querySelectorAll(".field label")[0];
+  const passLabel = document.querySelector('label[for="password"]') || document.querySelectorAll(".field label")[1];
+  const loginBtn = document.getElementById("loginBtn");
+  const registerBtn = document.getElementById("registerBtn");
 
-  // update placeholders
-  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
-    const key = el.getAttribute("data-i18n-placeholder");
-    if (dict[key]) el.setAttribute("placeholder", dict[key]);
-  });
+  if (loginH1) loginH1.textContent = t.loginTitle;
+  if (loginP) loginP.textContent = t.loginSubtitle;
+  if (emailLabel) emailLabel.textContent = t.emailLabel;
+  if (passLabel) passLabel.textContent = t.passwordLabel;
+  if (loginBtn) loginBtn.textContent = t.loginBtn;
+  if (registerBtn) registerBtn.textContent = t.registerBtn;
 
-  // update HTML lang attr
-  document.documentElement.setAttribute("lang", lang);
+  // DASHBOARD SIDEBAR
+  const navBtns = document.querySelectorAll(".nav-btn");
+  if (navBtns.length >= 5) {
+    navBtns[0].textContent = t.records;
+    navBtns[1].textContent = t.analytics;
+    navBtns[2].textContent = t.reminders;
+    navBtns[3].textContent = t.calculators;
+    navBtns[4].textContent = t.aiChecker;
+  }
 
-  console.log("🌍 Language applied:", lang);
+  const logoutBtn = document.querySelector(".logout-btn");
+  if (logoutBtn) logoutBtn.textContent = t.logout;
+
+  // DASHBOARD TAB HEADINGS
+  const recordsTab = document.getElementById("records");
+  const analyticsTab = document.getElementById("analytics");
+  const remindersTab = document.getElementById("reminders");
+  const calculatorsTab = document.getElementById("calculators");
+  const aiTab = document.getElementById("ai");
+
+  if (recordsTab) {
+    recordsTab.querySelector("h2").textContent = t.healthRecords;
+    recordsTab.querySelector("p").textContent = t.healthRecordsSub;
+  }
+
+  if (analyticsTab) {
+    analyticsTab.querySelector("h2").textContent = t.analyticsTitle;
+    analyticsTab.querySelector("p").textContent = t.analyticsSub;
+  }
+
+  if (remindersTab) {
+    remindersTab.querySelector("h2").textContent = t.remindersTitle;
+    remindersTab.querySelector("p").textContent = t.remindersSub;
+  }
+
+  if (calculatorsTab) {
+    calculatorsTab.querySelector("h2").textContent = t.calculatorsTitle;
+    calculatorsTab.querySelector("p").textContent = t.calculatorsSub;
+  }
+
+  if (aiTab) {
+    const cards = aiTab.querySelectorAll(".card");
+    if (cards[0]) {
+      cards[0].querySelector("h2").textContent = t.aiTitle;
+      cards[0].querySelector("p").textContent = t.aiSub;
+    }
+    if (cards[1]) {
+      cards[1].querySelector("h2").textContent = t.chatTitle;
+      cards[1].querySelector("p").textContent = t.chatSub;
+    }
+  }
 }
 
+// Initialize
 document.addEventListener("DOMContentLoaded", () => {
-  const langSelect = document.getElementById("langSelect");
+  const select = document.getElementById("langSelect");
+  if (!select) return;
 
-  const saved = getLang();
-  if (langSelect) langSelect.value = saved;
+  const currentLang = getLanguage();
+  select.value = currentLang;
+  applyLanguage(currentLang);
 
-  applyLanguage(saved);
-
-  langSelect?.addEventListener("change", () => {
-    const lang = langSelect.value;
-    setLang(lang);
-    applyLanguage(lang);
+  select.addEventListener("change", () => {
+    setLanguage(select.value);
   });
+
+
 });
