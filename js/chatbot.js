@@ -1,7 +1,9 @@
 /*
-  HEALTH CHATBOT - WITH LANGUAGE SUPPORT
-  -------------------------------------
-  Sends selected language to backend.
+  ADVANCED HEALTH CHATBOT - WITH HISTORY + LANGUAGE + VOICE
+  --------------------------------------------------------
+  - Sends selected language to backend
+  - Voice input works
+  - Voice output speaks in selected language
 */
 
 const API_URL = "https://ai-health-backend-ig16.onrender.com";
@@ -9,18 +11,35 @@ const API_URL = "https://ai-health-backend-ig16.onrender.com";
 const chatBox = document.getElementById("chatBox");
 const chatInput = document.getElementById("chatInput");
 
+// Conversation history
 let conversationHistory = [];
 
+/* ================= LANGUAGE ================= */
 function getLang() {
   return localStorage.getItem("lang") || "en";
 }
 
+/* ================= HELPERS ================= */
 function addMessage(text, sender = "AI") {
   const div = document.createElement("div");
   div.style.marginBottom = "16px";
+  div.style.animation = "fadeIn 0.3s ease";
 
   let safeText = String(text || "").trim();
-  if (!safeText) return;
+
+  if (!safeText) {
+    console.warn("⚠️ Empty message received");
+    return;
+  }
+
+  // Remove markdown formatting artifacts
+  safeText = safeText
+    .replace(/~~(.*?)~~/g, "$1")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/\[OUT\]/g, "")
+    .replace(/\[INST\]/g, "")
+    .replace(/<\/?del>/g, "");
 
   if (sender === "AI") {
     div.innerHTML = `
@@ -48,6 +67,7 @@ function addMessage(text, sender = "AI") {
         border-radius: 16px;
         margin-left: auto;
         max-width: 75%;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
       ">
         <strong style="color: #1e40af; font-size: 13px; display: block; margin-bottom: 4px;">
           You
@@ -63,6 +83,7 @@ function addMessage(text, sender = "AI") {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+/* ================= TYPING INDICATOR ================= */
 function showTyping() {
   const typingDiv = document.createElement("div");
   typingDiv.id = "typing-indicator";
@@ -72,8 +93,19 @@ function showTyping() {
       background: white;
       border-radius: 16px;
       border-left: 4px solid #06b6d4;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       max-width: 200px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     ">
+      <div style="
+        width: 8px;
+        height: 8px;
+        background: #06b6d4;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+      "></div>
       <span style="color: #64748b; font-size: 14px; font-style: italic;">
         AI is thinking...
       </span>
@@ -84,24 +116,24 @@ function showTyping() {
 }
 
 function removeTyping() {
-  document.getElementById("typing-indicator")?.remove();
+  const indicator = document.getElementById("typing-indicator");
+  if (indicator) indicator.remove();
 }
 
-/* ================= SEND CHAT ================= */
+/* ================= SEND MESSAGE WITH HISTORY ================= */
 window.sendChat = async function () {
   const msg = chatInput.value.trim();
   if (!msg) return;
 
+  stopSpeaking();
   addMessage(msg, "You");
   chatInput.value = "";
 
-  // Store user msg in history
-  conversationHistory.push({ role: "user", content: msg });
-
-  // keep last 10
-  if (conversationHistory.length > 10) {
-    conversationHistory = conversationHistory.slice(-10);
-  }
+  // Add user message to history
+  conversationHistory.push({
+    role: "user",
+    content: msg
+  });
 
   showTyping();
 
@@ -118,17 +150,27 @@ window.sendChat = async function () {
       })
     });
 
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
     const data = await res.json();
+    console.log("📬 Received data:", data);
 
     removeTyping();
 
-    if (!data.reply) {
-      addMessage("⚠️ No reply from AI server.", "AI");
+    if (!data.reply || data.reply.trim() === "") {
+      addMessage("⚠️ I didn't get a proper response. Please try again.", "AI");
       return;
     }
 
-    conversationHistory.push({ role: "assistant", content: data.reply });
+    // Add AI response to history
+    conversationHistory.push({
+      role: "assistant",
+      content: data.reply
+    });
 
+    // Keep only last 10 messages
     if (conversationHistory.length > 10) {
       conversationHistory = conversationHistory.slice(-10);
     }
@@ -137,8 +179,8 @@ window.sendChat = async function () {
     speakAI(data.reply);
   } catch (err) {
     removeTyping();
-    console.error(err);
-    addMessage("❌ Unable to connect to AI server.", "AI");
+    console.error("❌ Chat error:", err);
+    addMessage("❌ Unable to connect to the AI server. Please try again.", "AI");
   }
 };
 
@@ -154,11 +196,11 @@ window.clearChat = function () {
   } else if (lang === "mr") {
     addMessage("नमस्कार! मी तुमच्या आरोग्यासाठी कशी मदत करू शकतो?", "AI");
   } else {
-    addMessage("Hello! How can I help you with your health today?", "AI");
+    addMessage("Hello! I'm your AI health assistant. How can I help you today?", "AI");
   }
 };
 
-/* ================= ENTER KEY ================= */
+/* ================= ENTER KEY SUPPORT ================= */
 chatInput?.addEventListener("keypress", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -166,7 +208,149 @@ chatInput?.addEventListener("keypress", (e) => {
   }
 });
 
-/* ================= SPEECH ================= */
+/* ================= VOICE INPUT ================= */
+let recognition;
+let isListening = false;
+let voiceTranscript = "";
+let voiceTimeout = null;
+let finalTranscripts = [];
+
+if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  recognition = new SpeechRecognition();
+
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 3;
+
+  recognition.onstart = () => {
+    isListening = true;
+    voiceTranscript = "";
+    finalTranscripts = [];
+
+    const voiceBtn = document.querySelector('button[onclick="startVoice()"]');
+    if (voiceBtn) {
+      voiceBtn.style.background = "#fee2e2";
+      voiceBtn.style.color = "#dc2626";
+      voiceBtn.textContent = "🛑 Stop & Send";
+    }
+
+    chatInput.placeholder = "🎤 Listening...";
+    chatInput.style.borderColor = "#ef4444";
+    chatInput.style.borderWidth = "2px";
+  };
+
+  recognition.onresult = (event) => {
+    clearTimeout(voiceTimeout);
+
+    let interimTranscript = "";
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      const transcript = result[0].transcript;
+
+      if (result.isFinal) {
+        finalTranscripts.push(transcript);
+      } else {
+        interimTranscript += transcript;
+      }
+    }
+
+    const fullTranscript =
+      finalTranscripts.join(" ") + (interimTranscript ? " " + interimTranscript : "");
+
+    voiceTranscript = fullTranscript.trim();
+    chatInput.value = voiceTranscript;
+
+    // Auto-send after 2 seconds silence
+    voiceTimeout = setTimeout(() => {
+      if (voiceTranscript && isListening) {
+        stopVoiceAndSend();
+      }
+    }, 2000);
+  };
+
+  recognition.onerror = (err) => {
+    console.error("❌ Voice error:", err.error);
+    isListening = false;
+    clearTimeout(voiceTimeout);
+    resetVoiceButton();
+
+    if (err.error === "not-allowed") {
+      alert("Microphone permission denied. Allow mic access in browser.");
+    }
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    clearTimeout(voiceTimeout);
+    resetVoiceButton();
+  };
+}
+
+function resetVoiceButton() {
+  const voiceBtn = document.querySelector('button[onclick="startVoice()"]');
+  if (voiceBtn) {
+    voiceBtn.style.background = "";
+    voiceBtn.style.color = "";
+    voiceBtn.textContent = "🎤 Voice";
+  }
+
+  chatInput.placeholder = "Type or speak your health question...";
+  chatInput.style.borderColor = "";
+  chatInput.style.borderWidth = "";
+}
+
+function stopVoiceAndSend() {
+  if (!voiceTranscript.trim()) {
+    resetVoiceButton();
+    return;
+  }
+
+  try {
+    recognition.stop();
+  } catch (e) {}
+
+  setTimeout(() => {
+    sendChat();
+    voiceTranscript = "";
+    finalTranscripts = [];
+  }, 100);
+}
+
+/* Start/Stop voice */
+window.startVoice = function () {
+  if (!recognition) {
+    alert("Voice recognition not supported in this browser.\n\nUse Chrome or Edge.");
+    return;
+  }
+
+  // Set recognition language based on selected language
+  const lang = getLang();
+  if (lang === "hi") recognition.lang = "hi-IN";
+  else if (lang === "mr") recognition.lang = "mr-IN";
+  else recognition.lang = "en-US";
+
+  // If already listening, stop and send
+  if (isListening) {
+    stopVoiceAndSend();
+    return;
+  }
+
+  try {
+    recognition.start();
+  } catch (error) {
+    console.error("❌ Failed to start:", error);
+    try {
+      recognition.stop();
+      setTimeout(() => recognition.start(), 150);
+    } catch (e) {}
+  }
+};
+
+/* ================= SPEECH OUTPUT ================= */
 function speakAI(text) {
   if (!("speechSynthesis" in window)) return;
 
@@ -187,6 +371,7 @@ function speakAI(text) {
   window.speechSynthesis.speak(utterance);
 }
 
+/* ================= STOP SPEAKING ================= */
 window.stopSpeaking = function () {
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
