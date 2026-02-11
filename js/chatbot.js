@@ -1,40 +1,26 @@
 /*
-  ADVANCED HEALTH CHATBOT - WITH CONVERSATION HISTORY + LANGUAGE SUPPORT
-  ---------------------------------------------------------------------
-  Maintains context across messages
-  Sends selected language to backend so AI replies in that language
+  HEALTH CHATBOT - WITH LANGUAGE SUPPORT
+  -------------------------------------
+  Sends selected language to backend.
 */
 
 const API_URL = "https://ai-health-backend-ig16.onrender.com";
-
-console.log("🌐 Using API URL:", API_URL);
 
 const chatBox = document.getElementById("chatBox");
 const chatInput = document.getElementById("chatInput");
 
 let conversationHistory = [];
 
-/* ================= LANGUAGE ================= */
-function getSelectedLang() {
+function getLang() {
   return localStorage.getItem("lang") || "en";
 }
 
-/* ================= HELPERS ================= */
 function addMessage(text, sender = "AI") {
   const div = document.createElement("div");
   div.style.marginBottom = "16px";
-  div.style.animation = "fadeIn 0.3s ease";
 
   let safeText = String(text || "").trim();
   if (!safeText) return;
-
-  safeText = safeText
-    .replace(/~~(.*?)~~/g, "$1")
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-    .replace(/\*(.*?)\*/g, "$1")
-    .replace(/\[OUT\]/g, "")
-    .replace(/\[INST\]/g, "")
-    .replace(/<\/?del>/g, "");
 
   if (sender === "AI") {
     div.innerHTML = `
@@ -62,7 +48,6 @@ function addMessage(text, sender = "AI") {
         border-radius: 16px;
         margin-left: auto;
         max-width: 75%;
-        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
       ">
         <strong style="color: #1e40af; font-size: 13px; display: block; margin-bottom: 4px;">
           You
@@ -78,7 +63,6 @@ function addMessage(text, sender = "AI") {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-/* ================= TYPING INDICATOR ================= */
 function showTyping() {
   const typingDiv = document.createElement("div");
   typingDiv.id = "typing-indicator";
@@ -88,19 +72,8 @@ function showTyping() {
       background: white;
       border-radius: 16px;
       border-left: 4px solid #06b6d4;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       max-width: 200px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     ">
-      <div style="
-        width: 8px;
-        height: 8px;
-        background: #06b6d4;
-        border-radius: 50%;
-        animation: pulse 1.5s infinite;
-      "></div>
       <span style="color: #64748b; font-size: 14px; font-style: italic;">
         AI is thinking...
       </span>
@@ -114,19 +87,18 @@ function removeTyping() {
   document.getElementById("typing-indicator")?.remove();
 }
 
-/* ================= SEND MESSAGE ================= */
+/* ================= SEND CHAT ================= */
 window.sendChat = async function () {
   const msg = chatInput.value.trim();
   if (!msg) return;
 
-  stopSpeaking();
   addMessage(msg, "You");
   chatInput.value = "";
 
-  // Add user msg to history
+  // Store user msg in history
   conversationHistory.push({ role: "user", content: msg });
 
-  // Limit history to prevent token overflow
+  // keep last 10
   if (conversationHistory.length > 10) {
     conversationHistory = conversationHistory.slice(-10);
   }
@@ -134,9 +106,7 @@ window.sendChat = async function () {
   showTyping();
 
   try {
-    const selectedLang = getSelectedLang();
-
-    console.log("📤 Sending:", { msg, selectedLang });
+    const lang = getLang();
 
     const res = await fetch(`${API_URL}/chat`, {
       method: "POST",
@@ -144,21 +114,19 @@ window.sendChat = async function () {
       body: JSON.stringify({
         message: msg,
         history: conversationHistory,
-        lang: selectedLang
+        lang: lang
       })
     });
 
     const data = await res.json();
-    console.log("📬 Received:", data);
 
     removeTyping();
 
     if (!data.reply) {
-      addMessage("⚠️ No reply received from server.", "AI");
+      addMessage("⚠️ No reply from AI server.", "AI");
       return;
     }
 
-    // Add AI reply to history
     conversationHistory.push({ role: "assistant", content: data.reply });
 
     if (conversationHistory.length > 10) {
@@ -169,7 +137,7 @@ window.sendChat = async function () {
     speakAI(data.reply);
   } catch (err) {
     removeTyping();
-    console.error("❌ Chat error:", err);
+    console.error(err);
     addMessage("❌ Unable to connect to AI server.", "AI");
   }
 };
@@ -179,7 +147,7 @@ window.clearChat = function () {
   conversationHistory = [];
   chatBox.innerHTML = "";
 
-  const lang = getSelectedLang();
+  const lang = getLang();
 
   if (lang === "hi") {
     addMessage("नमस्ते! मैं आपकी हेल्थ में कैसे मदद कर सकता हूँ?", "AI");
@@ -198,7 +166,7 @@ chatInput?.addEventListener("keypress", (e) => {
   }
 });
 
-/* ================= SPEECH OUTPUT ================= */
+/* ================= SPEECH ================= */
 function speakAI(text) {
   if (!("speechSynthesis" in window)) return;
 
@@ -207,7 +175,7 @@ function speakAI(text) {
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
 
-  const lang = getSelectedLang();
+  const lang = getLang();
   if (lang === "hi") utterance.lang = "hi-IN";
   else if (lang === "mr") utterance.lang = "mr-IN";
   else utterance.lang = "en-US";
@@ -225,7 +193,7 @@ window.stopSpeaking = function () {
   }
 };
 
-/* ================= INIT GREETING ================= */
+/* ================= INIT ================= */
 window.addEventListener("load", () => {
   if (chatBox && chatBox.children.length === 0) {
     clearChat();

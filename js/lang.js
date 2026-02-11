@@ -2,11 +2,14 @@
   LANGUAGE SWITCHER (EN / HI / MR)
   -------------------------------
   Changes UI text without breaking CSS
+  Stores language in localStorage: "lang"
 */
 
 const translations = {
   en: {
     theme: "Theme",
+
+    // Login page
     loginTitle: "AI Health",
     loginSubtitle: "Secure access to your health records",
     emailLabel: "Email address",
@@ -14,7 +17,7 @@ const translations = {
     loginBtn: "Login",
     registerBtn: "Create new account",
 
-    // Dashboard sidebar
+    // Sidebar
     records: "📋 Records",
     analytics: "📊 Analytics",
     reminders: "⏰ Reminders",
@@ -22,7 +25,7 @@ const translations = {
     aiChecker: "🤖 AI Checker",
     logout: "🚪 Logout",
 
-    // Records
+    // Records tab
     recordsTitle: "Health Records",
     recordsSubtitle: "Keep track of your medical history",
     addRecord: "Add New Record",
@@ -30,25 +33,24 @@ const translations = {
     medicinePH: "Medicine (e.g., Paracetamol)",
     saveRecord: "💾 Save Record",
 
-    // Analytics
+    // Analytics tab
     analyticsTitle: "Health Analytics",
     analyticsSubtitle: "Visual summary of your medical records",
     conditionDist: "📊 Condition Distribution",
     medicineFreq: "💊 Medicine Frequency",
 
-    // Reminders
+    // Reminders tab
     remindersTitle: "Medicine Reminders",
     remindersSubtitle: "Never miss your medication",
-    setReminder: "Set New Reminder",
     reminderPH: "Medicine name (e.g., Aspirin)",
     setReminderBtn: "⏰ Set Reminder",
     scheduled: "📅 Scheduled Reminders",
 
-    // Calculators
+    // Calculators tab
     calcTitle: "Health Calculators",
     calcSubtitle: "Calculate your health metrics",
 
-    // AI
+    // AI tab
     aiTitle: "🩺 AI Symptom Checker",
     aiSubtitle: "Describe your symptoms and get AI-powered insights",
     symptomPH: "Enter symptoms (e.g., fever, headache, cough)",
@@ -60,11 +62,16 @@ const translations = {
     voiceBtn: "🎤 Voice",
     clearBtn: "🗑️ Clear",
     stopBtn: "🛑 Stop",
-    sendBtn: "Send"
+    sendBtn: "Send",
+
+    // Toast
+    toastTitle: "💊 Medicine Reminder",
+    toastBtn: "OK, Got it!"
   },
 
   hi: {
     theme: "थीम",
+
     loginTitle: "AI Health",
     loginSubtitle: "अपने हेल्थ रिकॉर्ड्स को सुरक्षित रखें",
     emailLabel: "ईमेल",
@@ -76,11 +83,11 @@ const translations = {
     analytics: "📊 एनालिटिक्स",
     reminders: "⏰ रिमाइंडर",
     calculators: "🧮 कैलकुलेटर",
-    aiChecker: "🤖 AI चेक",
+    aiChecker: "🤖 AI",
     logout: "🚪 लॉगआउट",
 
     recordsTitle: "हेल्थ रिकॉर्ड्स",
-    recordsSubtitle: "अपने मेडिकल रिकॉर्ड्स सेव करें",
+    recordsSubtitle: "अपना मेडिकल इतिहास सेव करें",
     addRecord: "नया रिकॉर्ड जोड़ें",
     conditionPH: "समस्या (जैसे सिरदर्द, बुखार)",
     medicinePH: "दवा (जैसे पैरासिटामोल)",
@@ -92,8 +99,7 @@ const translations = {
     medicineFreq: "💊 दवा फ्रीक्वेंसी",
 
     remindersTitle: "दवा रिमाइंडर",
-    remindersSubtitle: "अपनी दवा मिस मत करो",
-    setReminder: "नया रिमाइंडर सेट करें",
+    remindersSubtitle: "दवा मिस मत करो",
     reminderPH: "दवा का नाम (जैसे Aspirin)",
     setReminderBtn: "⏰ सेट करें",
     scheduled: "📅 रिमाइंडर सूची",
@@ -112,11 +118,15 @@ const translations = {
     voiceBtn: "🎤 बोलें",
     clearBtn: "🗑️ साफ",
     stopBtn: "🛑 रोकें",
-    sendBtn: "भेजें"
+    sendBtn: "भेजें",
+
+    toastTitle: "💊 दवा रिमाइंडर",
+    toastBtn: "ठीक है"
   },
 
   mr: {
     theme: "थीम",
+
     loginTitle: "AI Health",
     loginSubtitle: "तुमचे हेल्थ रेकॉर्ड सुरक्षित ठेवा",
     emailLabel: "ईमेल",
@@ -128,7 +138,7 @@ const translations = {
     analytics: "📊 विश्लेषण",
     reminders: "⏰ रिमाइंडर",
     calculators: "🧮 कॅल्क्युलेटर",
-    aiChecker: "🤖 AI तपासणी",
+    aiChecker: "🤖 AI",
     logout: "🚪 लॉगआउट",
 
     recordsTitle: "हेल्थ रेकॉर्ड्स",
@@ -145,7 +155,6 @@ const translations = {
 
     remindersTitle: "औषध रिमाइंडर",
     remindersSubtitle: "औषध चुकवू नका",
-    setReminder: "नवीन रिमाइंडर सेट करा",
     reminderPH: "औषध नाव (उदा. Aspirin)",
     setReminderBtn: "⏰ सेट करा",
     scheduled: "📅 रिमाइंडर यादी",
@@ -164,7 +173,10 @@ const translations = {
     voiceBtn: "🎤 बोला",
     clearBtn: "🗑️ क्लिअर",
     stopBtn: "🛑 थांबा",
-    sendBtn: "पाठवा"
+    sendBtn: "पाठवा",
+
+    toastTitle: "💊 औषध रिमाइंडर",
+    toastBtn: "ठीक आहे"
   }
 };
 
@@ -203,7 +215,7 @@ function applyLang(lang) {
   if (loginBtn) loginBtn.textContent = t.loginBtn;
   if (registerBtn) registerBtn.textContent = t.registerBtn;
 
-  // Dashboard sidebar buttons
+  // Sidebar buttons
   const navBtns = document.querySelectorAll(".nav-btn");
   if (navBtns.length >= 5) {
     navBtns[0].textContent = t.records;
@@ -300,6 +312,12 @@ function applyLang(lang) {
       }
     }
   }
+
+  // Toast
+  const toastHeader = document.querySelector(".toast-header");
+  const toastBtn = document.querySelector("#toast button.primary");
+  if (toastHeader) toastHeader.textContent = t.toastTitle;
+  if (toastBtn) toastBtn.textContent = t.toastBtn;
 }
 
 /* ================= INIT ================= */
