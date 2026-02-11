@@ -1587,3 +1587,29 @@ html:not([data-theme="dark"]) textarea {
   border-color: #3b82f6 !important;
   color: #3b82f6 !important;
 }
+/* =====================================================
+   LANGUAGE DROPDOWN (MATCHES THEME TOGGLE)
+===================================================== */
+.lang-toggle {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--bg-panel);
+  padding: 8px 14px;
+  border-radius: 50px;
+  border: 2px solid var(--border-soft);
+  box-shadow: var(--shadow-md);
+}
+
+
+.lang-toggle select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+}
+
